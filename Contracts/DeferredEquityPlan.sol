@@ -1,21 +1,20 @@
 pragma solidity ^0.5.0;
 
-// Test the timelock with fakenow - !comment out after test!
 contract DeferredEquityPlan {
-    uint fakenow = now;
     address human_resources;
 
-// Define variables for contract
+    // Define variables for contract
     address payable employee;
     bool active = true;
     uint total_shares = 1000;
     uint annual_distribution = 250;
 
-// Record contract initialization
+    // Start time for the contract is initialized when the contract hits the blockchain
+    // The contract unlocks exactly 365 days after
     uint start_time = now;
     uint unlock_time = now + 365 days;
 
-// Variable for distributed shares, positive integer value only
+    // Variable for distributed shares, positive integer value only
     uint public distributed_shares;
 
     constructor(address payable _employee) public {
@@ -23,8 +22,10 @@ contract DeferredEquityPlan {
         employee = _employee;
     }
 
-// Defining a distribute function with requirements on distribution of shares. 
+    // Define the distribution of shares
     function distribute() public {
+
+        // Ensure all requirements are met before executing contract
         require(msg.sender == human_resources || msg.sender == employee, "You are not authorized to execute this contract.");
         require(active == true, "Contract inactive.");
         require(unlock_time <= now, "Account locked.");
@@ -39,13 +40,13 @@ contract DeferredEquityPlan {
         }
     }
 
-// Allow HR and employee ability to deactivate contract whenever
+    // Allow HR and employee ability to deactivate contract whenever
     function deactivate() public {
         require(msg.sender == human_resources || msg.sender == employee, "You are not authorized to deactivate this contract.");
         active = false;
     }
 
-// Revert any Ether sent directly to the contract
+    // Revert any Ether sent directly to the contract
     function() external payable {
         revert("This contract does not accept Ethere!");
     }
